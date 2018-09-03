@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+persion:
+  name: qpf
+  age: 26
+  birth: 1992/05/10
+  address:
+    province: 广东
+    city: 广州
+  maps: {a: 1, b: 2}
+  lists: [a, b]
