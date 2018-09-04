@@ -10,3 +10,8 @@ persion:
     city: 广州
   maps: {a: 1, b: 2}
   lists: [a, b]
+
+dog:
+  name: buluto(belong to ${persion.name}})
+  age: ${random.int(2,5)}
+  isHungury: ${persion.maps.c:false}
