@@ -291,7 +291,7 @@ public class Address {
      lists: [a, b]
    ```
    - `properties`配置文件
-  ```properties
+  ```
   persion.name=qpf
   persion.age=26
   persion.birth=1992/05/10
@@ -336,7 +336,7 @@ Persion{name='qpf', age=26, birth=Sun May 10 00:00:00 CST 1992, address=Address{
 public class Persion {
     private String name;
     @Email
-    private String email
+    private String email;
     // constractor getter setter toString
 }
 ```
@@ -434,7 +434,7 @@ public class Address {
 
 2. 配置文件`persion.properties`
 
-```properties
+```
 persion.name=qpf
 persion.age=26
 persion.birth=1992/05/10
