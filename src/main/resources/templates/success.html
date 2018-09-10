@@ -10,5 +10,7 @@
     <ul th:each="user: ${users}">
         <li th:text="${user}"></li>
     </ul>
+    <div th:utext="${#execInfo}"></div>
+    <div th:utext="${#messages}"></div>
 </body>
 </html>

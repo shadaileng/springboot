@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +28,7 @@ public class EmployeeController {
     @GetMapping(value = "/empls")
     public String list(Map<String, Object> map) {
 
-        List<Employee> employees = employeeService.getAll();
+        Collection<Employee> employees = employeeService.getAll();
 
         map.put("empls", employees);
 
@@ -50,6 +49,28 @@ public class EmployeeController {
 
         employeeService.save(employee);
 
+        return "redirect:/empls";
+    }
+    @GetMapping(value = "/empl/{id}")
+    public String edit(@PathVariable("id") Integer id, Map<String, Object> map) {
+        Collection<Department> departments = departmentService.getAll();
+        map.put("depts", departments);
+        Employee employee = employeeService.getOne(id);
+        map.put("empl", employee);
+        return "empl/add";
+    }
+
+    @PutMapping("/empl")
+    public String editEmpl(Employee employee) {
+        logger.info("修改: " + employee);
+        int update = employeeService.editOne(employee);
+        return "redirect:/empls";
+    }
+    @DeleteMapping("/empl/{id}")
+    public String delEmpl(@PathVariable("id") Integer id) {
+        logger.info("删除: " + id);
+        int delOne = employeeService.delOne(id);
+        logger.info("delone: " + delOne);
         return "redirect:/empls";
     }
 }

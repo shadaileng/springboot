@@ -1,37 +1,36 @@
 package com.qpf.springbootquick.dao;
 
-import com.qpf.springbootquick.bean.Department;
 import com.qpf.springbootquick.bean.Employee;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class EmployeeService {
 
-    private static List<Employee> empls = new ArrayList<Employee>();
+    private static Map<Integer, Employee> map = new HashMap<Integer, Employee>();
     private static int index = 0;
 
     @Autowired
     private DepartmentService departmentService;
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     static {
 
-//        Collection<Department> depts = DepartmentService.getAllDepartment();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             index = 0;
-            empls.add(new Employee(1, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
             index++;
-            empls.add(new Employee(2, "cy", "cy@qq.com", "F", DepartmentService.getOne("2"), dateFormat.parse("2000-04-13")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
             index++;
-            empls.add(new Employee(3, "cxl", "cxl@qq.com", "F", DepartmentService.getOne("2"), dateFormat.parse("1993-05-16")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
             index++;
 
         } catch (ParseException e) {
@@ -39,9 +38,9 @@ public class EmployeeService {
         }
     }
 
-    public List<Employee> getAll() {
+    public Collection<Employee> getAll() {
 
-        List<Employee> employees = empls;
+        Collection<Employee> employees = map.values();
 
         return employees;
     }
@@ -49,7 +48,27 @@ public class EmployeeService {
     public int save(Employee employee) {
         employee.setId(++index);
         employee.getDepartment().setName(DepartmentService.getOne(employee.getDepartment().getId().toString()).getName());
-        empls.add(employee);
+        map.put(index, employee);
+        return 0;
+    }
+
+    public Employee getOne(Integer id) {
+        return map.get(id);
+    }
+
+    public int editOne(Employee employee) {
+        employee.getDepartment().setName(DepartmentService.getOne(employee.getDepartment().getId().toString()).getName());
+        map.put(employee.getId(), employee);
+        return 0;
+    }
+
+    public int delOne(Integer id) {
+        logger.info("id: " + id);
+        if (map.containsKey(id)) {
+            map.remove(id);
+        } else{
+            logger.info("该员工不在记录中");
+        }
         return 0;
     }
 }

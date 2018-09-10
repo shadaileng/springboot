@@ -18,6 +18,7 @@
     <link href="./Dashboard_files/dashboard.css" th:href="@{/asserts/dashboard.css}" rel="stylesheet">
     <style type="text/css">/* Chart.js */
 @-webkit-keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}@keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}.chartjs-render-monitor{-webkit-animation:chartjs-render-animation 0.001s;animation:chartjs-render-animation 0.001s;}</style>
+
   </head>
 
   <body>
@@ -52,8 +53,8 @@
                   <td th:text="${empl.department.name}"></td>
                   <td th:text="${#dates.format(empl.birth, 'yyyy-MM-dd')}"></td>
                   <td>
-                    <button class="btn btn-sm btn-primary">修改</button>
-                    <button class="btn btn-sm btn-danger">删除</button>
+                    <a class="btn btn-sm btn-primary" th:href="@{/empl/} + ${empl.id}">修改</a>
+                    <a class="btn btn-sm btn-danger" th:href="@{/empl/} + ${empl.id}" th:attr="targetName= ${empl.name}" onclick="delEmpl(event)">删除</a>
                   </td>
                 </tr>
               </tbody>
@@ -66,48 +67,38 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./Dashboard_files/jquery-3.3.1.slim.min.js" th:src="@{/webjars/jquery/3.3.1-1/jquery.js}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="./Dashboard_files/jquery-3.3.1.slim.min.js" th:src="@{/webjars/jquery/3.3.1-1/jquery.js}"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
-    <script src="./Dashboard_files/popper.min.js" th:src="@{/webjars/popper.js/1.14.4/dist/popper.js}"></script>
+    <script src="./Dashboard_files/popper.min.js" th:src="@{/webjars/popper.js/1.14.4/dist/umd/popper.js}"></script>
     <script src="./Dashboard_files/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
-
-    <!-- Icons -->
-    <script src="./Dashboard_files/feather.min.js" th:src="@{/webjars/feature.js/1.0.1/feature.js}"></script>
     <script>
-      feather.replace()
-    </script>
-
-    <!-- Graphs -->
-    <script src="./Dashboard_files/Chart.min.js" th:src="@{/webjars/chartjs/2.7.2/Chart.js}"></script>
-    <script>
-      var ctx = document.getElementById("myChart");
-      var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-          datasets: [{
-            data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
-            lineTension: 0,
-            backgroundColor: 'transparent',
-            borderColor: '#007bff',
-            borderWidth: 4,
-            pointBackgroundColor: '#007bff'
-          }]
-        },
-        options: {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: false
-              }
-            }]
-          },
-          legend: {
-            display: false,
-          }
+        function delEmpl(event) {
+            event = event || window.event
+            event.preventDefault()
+            let url = event.currentTarget.attributes['href'].value
+            let targetName = event.currentTarget.attributes['targetName'].value
+            if (!confirm('是否确定[ ' + targetName + ' ]? ')) return
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                  _method: "delete"
+                },
+                success: (result) => {
+                    location.assign("/empls")
+                    // console.log(result)
+                    // alert("删除成功")
+                }
+            })
+            return false
         }
-      });
     </script>
-  
+    <!-- Icons -->
+    <!--<script src="./Dashboard_files/feather.min.js" th:src="@{/webjars/feature.js/1.0.1/feature.js}"></script>-->
+    <!--<script>-->
+      <!--feather.replace()-->
+    <!--</script>-->
+
+
 
 </body></html>
