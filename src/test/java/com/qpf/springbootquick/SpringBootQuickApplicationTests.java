@@ -11,6 +11,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SpringBootQuickApplicationTests {
@@ -19,6 +25,9 @@ public class SpringBootQuickApplicationTests {
     Persion persion;
     @Autowired
     private Dog dog;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     private ApplicationContext ioc;
@@ -45,5 +54,15 @@ public class SpringBootQuickApplicationTests {
         System.out.println(tempPlaceHolder);
     }
 
+    @Test
+    public void datasource() throws SQLException {
+        System.out.println(dataSource.getClass());
+        System.out.println(dataSource.getConnection());
+//        PreparedStatement statement = conn.prepareStatement("select * from dept;");
+//        ResultSet resultSet = statement.executeQuery();
+//        while (resultSet.next()) {
+//            resultSet.getInt("");
+//        }
+    }
 
 }
