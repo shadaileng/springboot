@@ -1,7 +1,9 @@
 package com.qpf.springbootquick.controller;
 
 import com.qpf.springbootquick.bean.Department;
+import com.qpf.springbootquick.bean.Employee;
 import com.qpf.springbootquick.mapper.DepartmentMapper;
+import com.qpf.springbootquick.mapper.EmployeeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,8 @@ public class MybatisController {
 
     @Autowired
     private DepartmentMapper departmentMapper;
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
     @GetMapping("/test/getdept/{id}")
     public Map<String, Object> selectDepart(@PathVariable("id") Integer id) {
@@ -26,6 +30,33 @@ public class MybatisController {
 
         map.put("dept", department);
 
+        return map;
+    }
+
+    @GetMapping("/test/dept")
+    public Map<String, Object> insertDepartment(Department department) {
+        Map<String, Object> map = new HashMap<>();
+        int i = departmentMapper.insertDepartment(department);
+        System.out.println("insert: " + i);
+        map.put("dept", department);
+        return map;
+    }
+
+    @GetMapping("test/getempl/{id}")
+    public Map<String, Object> selectEmpl(@PathVariable("id") Integer id) {
+        Map<String, Object> map = new HashMap<>();
+        Employee employee = employeeMapper.selectEmployeeById(id);
+        System.out.println("employee: " + employee);
+        map.put("empl", employee);
+        return map;
+    }
+
+    @GetMapping("/test/empl")
+    public Map<String, Object> insertEmployee(Employee employee) {
+        Map<String, Object> map = new HashMap<>();
+        int insert = employeeMapper.insertEmployee(employee);
+        System.out.println("insert: " + insert);
+        map.put("empl", employee);
         return map;
     }
 }

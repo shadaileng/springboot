@@ -7,6 +7,7 @@ public class Employee {
     private String name;
     private String email;
     private String gender;
+    private Integer dept_id;
     private Department department;
     private Date birth;
 
@@ -18,6 +19,7 @@ public class Employee {
         this.email = email;
         this.gender = gender;
         this.department = department;
+        this.dept_id = department.getId();
         this.birth = birth;
     }
 
@@ -53,12 +55,21 @@ public class Employee {
         this.gender = gender;
     }
 
+    public Integer getDept_id() {
+        return dept_id;
+    }
+
+    public void setDept_id(Integer dept_id) {
+        this.dept_id = dept_id;
+    }
+
     public Department getDepartment() {
         return department;
     }
 
     public void setDepartment(Department department) {
         this.department = department;
+        this.dept_id = department != null ? department.getId() : -1;
     }
 
     public Date getBirth() {
@@ -76,6 +87,7 @@ public class Employee {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", gender='" + gender + '\'' +
+                ", dept_id=" + dept_id +
                 ", department=" + department +
                 ", birth=" + birth +
                 '}';

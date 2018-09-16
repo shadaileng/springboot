@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qpf.springbootquick.mapper.EmployeeMapper">
+    <select id="selectEmployeeById" resultType="com.qpf.springbootquick.bean.Employee">
+      select * from empl where id = #{id}
+    </select>
+    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO empl(name, gender, email, birth, dept_id) value (#{name}, #{gender}, #{email}, #{birth}, #{dept_id})
+    </insert>
+</mapper>
