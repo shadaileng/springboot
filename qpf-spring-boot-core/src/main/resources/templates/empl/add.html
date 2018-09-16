@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)https://getbootstrap.com/docs/4.1/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
+
+    <title>添加员工</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./Dashboard_files/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="./Dashboard_files/dashboard.css" th:href="@{/asserts/dashboard.css}" rel="stylesheet">
+    <style type="text/css">/* Chart.js */
+@-webkit-keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}@keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}.chartjs-render-monitor{-webkit-animation:chartjs-render-animation 0.001s;animation:chartjs-render-animation 0.001s;}</style>
+  </head>
+
+  <body>
+    <div th:replace="commons/bar::topbar"></div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div th:replace="commons/bar:: sidebar(activeUrl='empl')"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4"><div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+          <form th:action="@{/empl}" th:method="POST">
+              <input type="hidden" name="_method" value="put" th:if="${empl != null}">
+              <input type="hidden" name="id" th:value="${empl.id}" th:if="${empl != null}">
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Name</label>
+              <input type="text" class="form-control" id="" placeholder="name" name="name" th:value="${empl != null} ? ${empl.name} : ''">
+            </div>
+            <div class="form-group">
+              <label for="exampleFormControlInput1">Email</label>
+              <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com" name="email" th:value="${empl != null} ? ${empl.email} : ''">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1">Gender</label>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="gender" value="M" checked="checked" th:checked="${empl != null} ? (${empl.gender} == 'M' ? true : false) : true">
+                    <label class="form-check-label">男</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="gender" value="F" th:checked="${empl != null} and ${empl.gender} == 'F' ? true : false">
+                    <label class="form-check-label">女</label>
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="">Department</label>
+              <select class="form-control" name="department.id" >
+                <option th:each="dept: ${depts}" th:text="${dept.name}" th:value="${dept.id}" th:selected="${empl != null} ? ${dept.id == empl.department.id}">1</option>
+              </select>
+              <input type="hidden" value="1" name="dept_id">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1">Birth</label>
+                <input type="text" class="form-control" placeholder="1900/01/01" name="birth"  th:value="${empl != null} ? ${#dates.format(empl.birth, 'yyyy/MM/dd')} : ''">
+            </div>
+              <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${empl != null} ? update: add">Sign in</button>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./Dashboard_files/jquery-3.3.1.slim.min.js" th:src="@{/webjars/jquery/3.3.1-1/jquery.js}"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="./Dashboard_files/popper.min.js" th:src="@{/webjars/popper.js/1.14.4/dist/umd/popper.js}"></script>
+    <script src="./Dashboard_files/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <!-- Icons -->
+    <script src="./Dashboard_files/feather.min.js" th:src="@{/webjars/feature.js/1.0.1/feature.min.js}"></script>
+    <!--<script>-->
+      <!--feather.replace()-->
+    <!--</script>-->
+
+  
+
+</body></html>
