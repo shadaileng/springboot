@@ -2,70 +2,70 @@
   "hints": [],
   "groups": [
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion",
-      "type": "com.qpf.springbootquick.bean.Persion"
+      "type": "com.qpf.springboot.bean.Persion"
     },
     {
-      "sourceType": "com.qpf.springbootquick.config.DruidConfig",
+      "sourceType": "com.qpf.springboot.config.DruidConfig",
       "name": "spring.datasource",
       "sourceMethod": "druidDataSource()",
       "type": "javax.sql.DataSource"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.TempPlaceHolder",
+      "sourceType": "com.qpf.springboot.bean.TempPlaceHolder",
       "name": "temp",
-      "type": "com.qpf.springbootquick.bean.TempPlaceHolder"
+      "type": "com.qpf.springboot.bean.TempPlaceHolder"
     }
   ],
   "properties": [
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.address",
-      "type": "com.qpf.springbootquick.bean.Address"
+      "type": "com.qpf.springboot.bean.Address"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.age",
       "type": "java.lang.Integer"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.birth",
       "type": "java.util.Date"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.lists",
       "type": "java.util.List<java.lang.String>"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.maps",
       "type": "java.util.Map<java.lang.String,java.lang.Object>"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.Persion",
+      "sourceType": "com.qpf.springboot.bean.Persion",
       "name": "persion.name",
       "type": "java.lang.String"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.TempPlaceHolder",
+      "sourceType": "com.qpf.springboot.bean.TempPlaceHolder",
       "name": "temp.age",
       "type": "java.lang.Integer"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.TempPlaceHolder",
+      "sourceType": "com.qpf.springboot.bean.TempPlaceHolder",
       "name": "temp.name",
       "type": "java.lang.String"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.TempPlaceHolder",
+      "sourceType": "com.qpf.springboot.bean.TempPlaceHolder",
       "name": "temp.ok",
       "type": "java.lang.Boolean"
     },
     {
-      "sourceType": "com.qpf.springbootquick.bean.TempPlaceHolder",
+      "sourceType": "com.qpf.springboot.bean.TempPlaceHolder",
       "name": "temp.random-str",
       "type": "java.lang.String"
     }

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Main</title>
+    <link href="./Dashboard_files/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+
+    <script  th:src="@{/webjars/jquery/3.3.1-1/jquery.js}"></script>
+    <script th:src="@{/webjars/popper.js/1.14.4/dist/umd/popper.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+    <script>
+        $(function () {
+            $("#getEmpl").on("click", function() {
+                $.ajax({
+                    url: "/test/getEmpl",
+                    type:"GET",
+                    async:true,
+                    dataType:"json",
+                    data: "name=shad&genderM&email=shad@qq.com&birth=1992/05/10&dept_id=1&department.id=1",
+                    beforeSend: function () {
+                        console.log("beforeSend...")
+                    },
+                    success: function (result) {
+                        console.log(JSON.stringify(result))
+                        $("div").html(result)
+                    },
+                    complete:function(){
+                        console.log("complete...")
+                    },
+                    error: function(xhr,status) {
+                        $("div").text(xhr.status)
+                    }
+                })
+            })
+
+
+            $("#postEmpl").on("click", function() {
+                $.ajax({
+                    url: "/test/postEmpl",
+                    type:"POST",
+                    async:true,
+                    dataType:"json",
+                    data: {
+                        name: "sdl",
+                        email: "sdl@qq.com",
+                        gender: "M",
+                        birth: "1992/05/10",
+                        "department.id": "1"
+                    },
+                    beforeSend: function () {
+                        console.log("beforeSend...")
+                    },
+                    success: function (result) {
+                        console.log(JSON.stringify(result))
+                        $("div").html(result)
+                    },
+                    complete:function(){
+                        console.log("complete...")
+                    },
+                    error: function(xhr,status) {
+                        $("div").text(xhr.status)
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+    <button class="btn btn-sm" id="getEmpl">Get</button>
+    <button class="btn btn-sm" id="postEmpl">POST</button>
+    <div style="width: 300px; height: 400px"></div>
+
+</body>
+</html>

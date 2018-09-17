@@ -7,11 +7,13 @@ import com.qpf.springboot.dao.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +47,13 @@ public class EmployeeController {
     }
 
     @PostMapping("/empl")
-    public String addOne(Employee employee, BindingResult bindingResult) {
-
+    public String addOne(Employee employee, BindingResult bindingResult, HttpServletRequest request) {
+        System.out.println(request.getParameter("dept_id"));
         if (bindingResult.hasErrors()) {
             List<ObjectError> errors = bindingResult.getAllErrors();
 
             for (ObjectError error: errors) {
-                logger.warn("error: " + error);
+                logger.warn("error: " + error.getDefaultMessage());
             }
         }
 

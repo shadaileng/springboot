@@ -69,7 +69,7 @@ public class Employee {
 
     public void setDepartment(Department department) {
         this.department = department;
-        this.dept_id = department != null ? department.getId() : -1;
+//        this.dept_id = department != null ? department.getId() : -1;
     }
 
     public Date getBirth() {
