@@ -4,12 +4,17 @@ import com.qpf.springboot.bean.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@CacheConfig(cacheNames = "emp")
 @Repository
 public class EmployeeService {
 
@@ -52,18 +57,21 @@ public class EmployeeService {
         return 0;
     }
 
+    @Cacheable(value = "emp", key = "'emp:'+#id")
     public Employee getOne(Integer id) {
+        logger.info("getEmp: " + id);
         return map.get(id);
     }
-
-    public int editOne(Employee employee) {
+    @CachePut(value = "emp", key="'emp:' + #result.id")
+    public Employee editOne(Employee employee) {
+        logger.info("editEmp: " + employee);
         employee.getDepartment().setName(DepartmentService.getOne(employee.getDepartment().getId().toString()).getName());
         map.put(employee.getId(), employee);
-        return 0;
+        return employee;
     }
-
+    @CacheEvict(value = "emp", key = "'emp:' + #id")
     public int delOne(Integer id) {
-        logger.info("id: " + id);
+        logger.info("delEmp: " + id);
         if (map.containsKey(id)) {
             map.remove(id);
         } else{

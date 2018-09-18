@@ -84,7 +84,7 @@ public class EmployeeController {
         }
 
         logger.info("修改: " + employee);
-        int update = employeeService.editOne(employee);
+        employee = employeeService.editOne(employee);
         return "redirect:/empls";
     }
     @DeleteMapping("/empl/{id}")
