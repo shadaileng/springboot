@@ -1,8 +1,6 @@
 package com.qpf.springboot;
 
-import com.qpf.springboot.bean.Dog;
-import com.qpf.springboot.bean.Persion;
-import com.qpf.springboot.bean.TempPlaceHolder;
+import com.qpf.springboot.bean.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,7 +36,7 @@ public class SpringBootQuickApplicationTests {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<Object, Employee> employeeRedisTemplate;
 
     @Test
     public void contextLoads() {
@@ -79,11 +78,7 @@ public class SpringBootQuickApplicationTests {
         strOps.append("msg", " world");
         System.out.println(String.format("msg: %s", strOps.get("msg")));
 
-        BoundListOperations<Object, Object> listOps = redisTemplate.boundListOps("list");
-
-        for (int i = 10; i > 0; i--) listOps.leftPush(1);
-
-        System.out.println(listOps);
+        employeeRedisTemplate.opsForValue().set("emp-01", new Employee(1, "qpf", "qpf@qq.com", "M", new Department(), new Date()));
     }
 
 }
