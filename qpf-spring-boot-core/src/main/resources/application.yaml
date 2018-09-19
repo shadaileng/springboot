@@ -45,6 +45,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  redis:
+    host: 116.85.54.176
 mybatis:
   config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
