@@ -14,7 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@CacheConfig(cacheNames = "emp")
+@CacheConfig(cacheNames = "emp", cacheManager = "employeeRedisCacheManager")
 @Repository
 public class EmployeeService {
 
@@ -31,11 +31,11 @@ public class EmployeeService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             index = 0;
-            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getDepartment(1), dateFormat.parse("1992-05-10")));
             index++;
-            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getDepartment(1), dateFormat.parse("1992-05-10")));
             index++;
-            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getOne("1"), dateFormat.parse("1992-05-10")));
+            map.put(index, new Employee(index, "qpf", "qpf@qq.com", "M", DepartmentService.getDepartment(1), dateFormat.parse("1992-05-10")));
             index++;
 
         } catch (ParseException e) {
@@ -52,24 +52,24 @@ public class EmployeeService {
 
     public int save(Employee employee) {
         employee.setId(++index);
-        employee.getDepartment().setName(DepartmentService.getOne(employee.getDepartment().getId().toString()).getName());
+        employee.getDepartment().setName(departmentService.getOne(employee.getDepartment().getId()).getName());
         map.put(index, employee);
         return 0;
     }
 
-    @Cacheable(value = "emp", key = "'emp:'+#id")
+    @Cacheable(value = "emp", key = "#id")
     public Employee getOne(Integer id) {
         logger.info("getEmp: " + id);
         return map.get(id);
     }
-    @CachePut(value = "emp", key="'emp:' + #result.id")
+    @CachePut(value = "emp", key="#result.id")
     public Employee editOne(Employee employee) {
         logger.info("editEmp: " + employee);
-        employee.getDepartment().setName(DepartmentService.getOne(employee.getDepartment().getId().toString()).getName());
+        employee.getDepartment().setName(departmentService.getOne(employee.getDepartment().getId()).getName());
         map.put(employee.getId(), employee);
         return employee;
     }
-    @CacheEvict(value = "emp", key = "'emp:' + #id")
+    @CacheEvict(value = "emp", key = "#id")
     public int delOne(Integer id) {
         logger.info("delEmp: " + id);
         if (map.containsKey(id)) {
