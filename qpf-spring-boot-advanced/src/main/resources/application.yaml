@@ -1,0 +1,36 @@
+spring:
+  thymeleaf:
+    cache: false
+  messages:
+    basename: i18n.message
+  redis:
+    host: 116.85.54.176
+  rabbitmq:
+    host: 116.85.54.176
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  datasource:
+    username: mysql
+    password: mysql
+    url: jdbc:mysql://116.85.54.176:3306/ssm
+    driver-class-name: com.mysql.jdbc.Driver
+#    schema: classpath:sql/tables.sql
+#    type: com.alibaba.druid.pool.DruidDataSource
+#    initialSize: 5
+#    minIdle: 5
+#    maxActive: 20
+#    maxWait: 60000
+#    timebetweenEvictionRunsMillis: 60000
+#    minEvictableidleTimeMillis: 300000
+#    validationQuery: SELECT 1 FROM DUAL
+#    testWhileIdle: true
+#    testOnBorrow: false
+#    testOnReturn: false
+#    poolPreparedStatements: true
+##   配置监控统计拦截的filters, 去掉之后监控界面无法统计sql,wall用于防火墙
+#    filters: stat,wall,log4j
+#    maxPoolPreparedStatementPerConnectionSize: 20
+#    useGlobalDataSourceStat: true
+#    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500

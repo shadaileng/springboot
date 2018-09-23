@@ -13,7 +13,7 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     // 指定字段名和长度
-    @Column(name = "name", length = 255)
+    @Column(name = "employee.name", length = 255)
     private String name;
     // 默认属性名就是字段名
     @Column

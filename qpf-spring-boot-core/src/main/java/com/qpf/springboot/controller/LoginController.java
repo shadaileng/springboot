@@ -14,7 +14,7 @@ import java.util.Map;
 public class LoginController {
     private Logger logger = LoggerFactory.getLogger(getClass());
     @PostMapping(value = "/user/login")
-    public String login(@RequestParam("email") String email, @RequestParam("password") String password, Map<String, Object> map, HttpSession session) {
+    public String login(@RequestParam("employee.email") String email, @RequestParam("password") String password, Map<String, Object> map, HttpSession session) {
 
         if (!StringUtils.isEmpty(password) && "123456".equals(password)) {
 

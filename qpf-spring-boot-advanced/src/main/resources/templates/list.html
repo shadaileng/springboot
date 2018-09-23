@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List</title>
+    <script th:replace="commons/templates::.imports"></script>
+    <script>
+        function delEmpl(event) {
+            event = event || window.event
+            event.preventDefault()
+            let url = event.currentTarget.attributes['href'].value
+            let name = event.currentTarget.attributes['targetName'].value
+            if (!confirm('是否确定[ ' + name + ' ]? ')) return
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    _method: "delete"
+                },
+                success: (result) => {
+                    location.assign("/empls")
+                    // console.log(result)
+                    // alert("删除成功")
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div th:replace="commons/templates::topbar"></div>
+    <div class="container-fluid" style="position: relative; top: 40px;">
+        <div class="row">
+            <div th:replace="commons/templates::sidebar"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <h2>员工列表</h2>
+                <div class="table-responsive">
+                    <a th:href="@{/empl}" class="btn btn-sm btn-success">[[#{employee.add}]]</a>
+                    <table class="table table-striped table-sm text-center">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>[[#{employee.name}]]</th>
+                            <th>[[#{employee.email}]]</th>
+                            <th>[[#{employee.gender}]]</th>
+                            <th>[[#{employee.department}]]</th>
+                            <th>[[#{employee.birth}]]</th>
+                            <th>[[#{employee.option}]]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="empl: ${empls}">
+                            <td th:text="${empl.id}"></td>
+                            <td th:text="${empl.name}"></td>
+                            <td th:text="${empl.email}"></td>
+                            <td th:text="${empl.gender} == 'M'?#{employee.male}: #{employee.female}"></td>
+                            <td th:text="${empl.department.name}"></td>
+                            <td th:text="${#dates.format(empl.birth, 'yyyy-MM-dd')}"></td>
+                            <td>
+                                <a class="btn btn-sm btn-primary" th:href="@{/empl/} + ${empl.id}">[[#{employee.edit}]]</a>
+                                <a class="btn btn-sm btn-danger" th:href="@{/empl/} + ${empl.id}" th:attr="targetName= ${empl.name}" onclick="delEmpl(event)">[[#{employee.delete}]]</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

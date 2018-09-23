@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <script th:replace="commons/templates::.imports"></script>
+</head>
+<body>
+    <div th:replace="commons/templates::topbar"></div>
+    <div class="container-fluid" style="position: relative; top: 40px;">
+        <div class="row">
+            <div th:replace="commons/templates::sidebar"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <h1>[[#{employee.add}]]</h1>
+                <form th:action="@{/empl}" method="post">
+                    <input type="hidden" name="id" th:if="${empl} != null" th:value="${empl.id}">
+                    <input type="hidden" name="_method" th:if="${empl} != null" value="PUT">
+                    <div class="form-group row">
+                        <label for="inputName" class="col-sm-2 col-form-label offset-2">[[#{employee.name}]]</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" id="inputName" th:placeholder="#{employee.name}" name="name" th:value="${empl} != null ? ${empl.name} : ''">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail" class="col-sm-2 col-form-label offset-2">[[#{employee.email}]]</label>
+                        <div class="col-sm-5">
+                            <input type="email" class="form-control" id="inputEmail" placeholder="name@example.com" name="email" th:value="${empl} != null ? ${empl.email} : ''">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <legend class="col-sm-2 col-form-label offset-2">[[#{employee.gender}]]</legend>
+                        <div class="col-sm-2 form-check-inline offset-1">
+                            <input type="radio" class="form-check-input" id="genderRadio1" name="gender" value="M"  th:checked="${empl} != null ? ${empl.gender} == 'M' : true">
+                            <label class="form-check-label" for="genderRadio1">
+                                [[#{employee.male}]]
+                            </label>
+                        </div>
+                        <div class="col-sm-2 form-check-inline">
+                            <input type="radio" class="form-check-input" id="genderRadio2" name="gender" value="F" th:checked="${empl} != null ? ${empl.gender} == 'F' : false">
+                            <label class="form-check-label" for="genderRadio2">
+                                [[#{employee.female}]]
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 offset-2" for="deptSelect">[[#{employee.department}]]</label>
+                        <select class="col-sm-5 form-control" id="deptSelect" name="department.id">
+                            <option th:each="dept: ${depts}" th:value="${dept.id}" th:selected="${empl} != null ? ${empl.department.id} == ${dept.id} : false">[[${dept.name}]]</option>
+                        </select>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 offset-2" for="birthInput">[[#{employee.birth}]]</label>
+                        <input class="col-sm-5 form-control" id="birthInput" name="birth" th:value="${empl} != null ? ${#dates.format(empl.birth, 'yyyy/MM/dd')} : ''">
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="${empl} != null ? #{employee.edit} : #{employee.add}">add</button>
+                </form>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Templates</title>
+    <link class="imports" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
+    <link class="imports" th:href="@{/open-iconic/font/css/open-iconic-bootstrap.css}" rel="stylesheet">
+    <script class="imports" th:src="@{/webjars/jquery/3.3.1-1/jquery.js}"></script>
+    <script class="imports">window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script class="imports" th:src="@{/webjars/popper.js/1.14.4/dist/umd/popper.js}"></script>
+    <script class="imports" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+
+</head>
+<body>
+    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" th:fragment="topbar">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
+        <input class="form-control form-control-dark w-100 col-sm-3 col-md-2 " type="text" placeholder="Search" aria-label="Search">
+        <ul class="nav nav-tabs">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" th:text="#{template.language}"></a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" th:href="${#request.requestURI} + '?l=zh_CN'" th:text="#{template.language.zh_CN}"></a>
+                    <a class="dropdown-item" th:href="${#request.requestURI} + '?l=en_US'" th:text="#{template.language.en_US}"></a>
+                </div>
+            </li>
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#" th:text="#{template.logout}"></a>
+            </li>
+        </ul>
+    </nav>
+
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar" style="padding-bottom: 28%;" th:fragment="sidebar">
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" th:class="${activeUrl=='main'?'nav-link active':'nav-link'}" th:href="@{/main}" href="https://getbootstrap.com/docs/4.1/examples/dashboard/#">
+                        Dashboard <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+            </ul>
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                <span>Saved reports</span>
+                <a class="d-flex align-items-center text-muted" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </h6>
+            <ul class="nav flex-column mb-2" th:each="item : ${session.SIDE_MENU}">
+                <li class="nav-item">
+                    <a class="nav-link" th:class="${activeUrl=='empl'?'nav-link active':'nav-link'}" th:href="${item.url}" href="#">
+                        <span th:class="'oi oi-' + ${item.icon}" th:title="${item.icon}" aria-hidden="true"></span>
+                        [[${item.text}]]
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+</body>
+</html>

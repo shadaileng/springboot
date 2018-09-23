@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
-//@ImportResource(locations = {"classpath:beans.xml"})
+//@ImportResource(locations = {"classpath:bean.xml"})
 //@MapperScan(basePackages = "com.qpf.springboot.mapper")
 @EnableCaching
 @SpringBootApplication

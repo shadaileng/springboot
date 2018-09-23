@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <script th:replace="commons/templates::.imports"></script>
+</head>
+<body>
+    <div th:replace="commons/templates::topbar"></div>
+    <div class="container-fluid" style="position: relative; top: 40px;">
+        <div class="row">
+            <div th:replace="commons/templates::sidebar"></div>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <a class="btn btn-sm btn-success" th:href="@{/empls}">List</a>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
