@@ -11,6 +11,21 @@ spring:
     username: guest
     password: guest
     virtual-host: /
+  elasticsearch:
+    jest:
+      uris: http://116.85.54.176:9200
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch
+      cluster-nodes: 116.85.54.176:9300
+  mail:
+    host: smtp.qq.com
+    username: qpf0510@qq.com
+    password: pwhzvfvkapncbfib
+    properties:
+      smtp:
+        ssl:
+          enable: true
   datasource:
     username: mysql
     password: mysql
