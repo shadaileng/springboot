@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://getbootstrap.com/docs/4.1/examples/floating-labels/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
+
+    <title>[[#{login.title}]]</title>
+
+    <script th:replace="commons/templates::.imports"></script>
+  </head>
+
+  <body>
+    <form class="form-signin" th:action="@{/user/login}" th:method="POST">
+      <div class="text-center mb-4">
+        <img class="mb-4" th:src="@{/asserts/bootstrap-solid.svg}" alt="" width="72" height="72">
+        <h1 class="h3 mb-3 font-weight-normal" th:text="#{login.title}">Floating labels</h1>
+        <!--<p th:if="not ${#strings.isEmpty(msg)}" style="color: #ff2b1a;" th:text="${msg}"></p>-->
+      </div>
+
+      <div class="form-label-group">
+        <input type="email" id="inputEmail" th:name="email" class="form-control" th:placeholder="#{login.email}" placeholder="Email address" required="" autofocus="">
+        <label for="inputEmail" th:text="#{login.email}">Email address</label>
+      </div>
+
+      <div class="form-label-group">
+        <input type="password" id="inputPassword" th:name="password" class="form-control" th:placeholder="#{login.password}" placeholder="Password" required="">
+        <label for="inputPassword" th:text="#{login.password}">Password</label>
+      </div>
+
+      <div class="checkbox mb-3">
+        <label>
+          <input type="checkbox" value="remember-me"> [[#{login.remember}]]
+        </label>
+      </div>
+      <button class="btn btn-lg btn-primary btn-block" type="submit" th:text="#{login.title}">Sign in</button>
+      <p class="mt-5 mb-3 text-muted text-center">© 2017-2018</p>
+      <div class="text-center">
+          <a th:href="${#request.requestURI} + '?l=zh_CN'">中文</a>
+          <a th:href="${#request.requestURI} + '?l=en_US'">English</a>
+      </div>
+    </form>
+</body></html>

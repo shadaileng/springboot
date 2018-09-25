@@ -1,5 +1,6 @@
 package com.qpf.advanced.components;
 
+import com.qpf.advanced.bean.Menu;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -12,19 +13,12 @@ public class InitHandlerInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
 
-        List<Map<String, String>> menus = new ArrayList<Map<String, String>>();
-        Map<String, String> menu = new HashMap<String, String>();
-        menu.put("employee.name", "list");
-        menu.put("text", "员工列表");
-        menu.put("icon", "list");
-        menu.put("url", "/empls");
-        menus.add(menu);
-        menu = new HashMap<String, String>();
-        menu.put("employee.name", "add");
-        menu.put("text", "添加员工");
-        menu.put("icon", "plus");
-        menu.put("url", "/empl");
-        menus.add(menu);
+        List<Menu> menus = new ArrayList<Menu>();
+        menus.add(new Menu("E1001", 1, "E1", "员工列表", "/empls", "list", "VIP1,VIP2,VIP3"));
+        menus.add(new Menu("E1002", 2, "E1", "添加员工", "/empl", "plus", "VIP1,VIP2,VIP3"));
+        menus.add(new Menu("S1001", 1, "S1", "VIP1", "/level/level1", "plus", "VIP1,VIP2,VIP3"));
+        menus.add(new Menu("S1002", 2, "S1", "VIP2", "/level/level2", "plus", "VIP1,VIP2,VIP3"));
+        menus.add(new Menu("S1003", 3, "S1", "VIP3", "/level/level3", "plus", "VIP1,VIP2,VIP3"));
 
         httpServletRequest.getSession().setAttribute("SIDE_MENU", menus);
 

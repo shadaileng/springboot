@@ -1,14 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thmeleaf.org/thmeleaf-extras-springsecurity4">
 <head>
     <meta charset="UTF-8">
     <title>Templates</title>
     <link class="imports" th:href="@{/webjars/bootstrap/4.0.0/css/bootstrap.css}" rel="stylesheet">
     <link class="imports" th:href="@{/open-iconic/font/css/open-iconic-bootstrap.css}" rel="stylesheet">
+    <link class="imports" th:href="@{/asserts/floating-labels.css}" rel="stylesheet">
     <script class="imports" th:src="@{/webjars/jquery/3.3.1-1/jquery.js}"></script>
     <script class="imports">window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
     <script class="imports" th:src="@{/webjars/popper.js/1.14.4/dist/umd/popper.js}"></script>
     <script class="imports" th:src="@{/webjars/bootstrap/4.0.0/js/bootstrap.js}"></script>
+    <script class="imports">
+        function logout(event) {
+            event = event || window.event
+            event.preventDefault()
+            let url = event.currentTarget.attributes['href'].value
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (date) {
+                    location.assign("/")
+                }
+            })
+
+        }
+    </script>
 
 </head>
 <body>
@@ -24,7 +40,10 @@
                 </div>
             </li>
             <li class="nav-item text-nowrap">
-                <a class="nav-link" href="#" th:text="#{template.logout}"></a>
+                <!--<a class="nav-link" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>-->
+                <!--<a class="nav-link" th:href="@{/userlogin}" th:text="#{login.title}"></a>-->
+                <a class="nav-link" onclick="logout(event)" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>
+                <a class="nav-link" th:href="@{/userlogin}" sec:authorize="!isAuthenticated()" th:text="#{login.title}"></a>
             </li>
         </ul>
     </nav>
@@ -33,7 +52,7 @@
         <div class="sidebar-sticky">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link active" th:class="${activeUrl=='main'?'nav-link active':'nav-link'}" th:href="@{/main}" href="https://getbootstrap.com/docs/4.1/examples/dashboard/#">
+                    <a class="nav-link active" th:class="${#request.requestURI=='main'?'nav-link active':'nav-link'}" th:href="@{/main}" href="#">
                         Dashboard <span class="sr-only">(current)</span>
                     </a>
                 </li>
@@ -45,11 +64,11 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 </a>
             </h6>
-            <ul class="nav flex-column mb-2" th:each="item : ${session.SIDE_MENU}">
+            <ul class="nav flex-column mb-2" th:each="menu : ${session.SIDE_MENU}">
                 <li class="nav-item">
-                    <a class="nav-link" th:class="${activeUrl=='empl'?'nav-link active':'nav-link'}" th:href="${item.url}" href="#">
-                        <span th:class="'oi oi-' + ${item.icon}" th:title="${item.icon}" aria-hidden="true"></span>
-                        [[${item.text}]]
+                    <a class="nav-link" th:class="${#request.requestURI==menu.menuUrl?'nav-link active':'nav-link'}" th:href="${menu.menuUrl}" href="#">
+                        <span th:class="'oi oi-' + ${menu.menuIcon}" th:title="${menu.menuIcon}" aria-hidden="true"></span>
+                        [[${menu.menuText}]]
                     </a>
                 </li>
             </ul>
