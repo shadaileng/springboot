@@ -14,7 +14,7 @@
         function logout(event) {
             event = event || window.event
             event.preventDefault()
-            let url = event.currentTarget.attributes['href'].value
+            let url = $(event.currentTarget).attr('href')
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -22,7 +22,14 @@
                     location.assign("/")
                 }
             })
-
+        }
+        function formout(event) {
+            event = event || window.event
+            event.preventDefault()
+            let form = $(event.currentTarget).next('form')
+            console.log(form)
+            // return
+            form.submit()
         }
     </script>
 
@@ -40,10 +47,12 @@
                 </div>
             </li>
             <li class="nav-item text-nowrap">
+                <a class="nav-link" onclick="formout(event)" th:href="@{/logout}" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>
+                <form class="hide" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="POST"></form>
                 <!--<a class="nav-link" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>-->
                 <!--<a class="nav-link" th:href="@{/userlogin}" th:text="#{login.title}"></a>-->
-                <a class="nav-link" onclick="logout(event)" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>
-                <a class="nav-link" th:href="@{/userlogin}" sec:authorize="!isAuthenticated()" th:text="#{login.title}"></a>
+                <!--<a class="nav-link" onclick="formout(event)" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>-->
+                <a class="nav-link" th:href="@{/login}" sec:authorize="!isAuthenticated()" th:text="#{login.title}"></a>
             </li>
         </ul>
     </nav>

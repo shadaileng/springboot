@@ -24,6 +24,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/level/level2/**").hasRole("VIP2")
                 .antMatchers("/level/level3/**").hasRole("VIP3");
         http.formLogin();
-        http.logout();
+        http.logout().logoutSuccessUrl("/");;
     }
 }
