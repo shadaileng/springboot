@@ -39,6 +39,10 @@
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
         <input class="form-control form-control-dark w-100 col-sm-3 col-md-2 " type="text" placeholder="Search" aria-label="Search">
         <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link text-light" sec:authorize="isAuthenticated()"><span sec:authentication="name"></span><span sec:authentication="principal.authorities"></span></a>
+                <a class="nav-link text-light" sec:authorize="!isAuthenticated()" th:text="#{login.visitors}"></a>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" th:text="#{template.language}"></a>
                 <div class="dropdown-menu">
@@ -49,10 +53,7 @@
             <li class="nav-item text-nowrap">
                 <a class="nav-link" onclick="formout(event)" th:href="@{/logout}" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>
                 <form class="hide" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="POST"></form>
-                <!--<a class="nav-link" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>-->
-                <!--<a class="nav-link" th:href="@{/userlogin}" th:text="#{login.title}"></a>-->
-                <!--<a class="nav-link" onclick="formout(event)" href="/logout" sec:authorize="isAuthenticated()" th:text="#{login.logout}"></a>-->
-                <a class="nav-link" th:href="@{/login}" sec:authorize="!isAuthenticated()" th:text="#{login.title}"></a>
+                <a class="nav-link" th:href="@{/userlogin}" sec:authorize="!isAuthenticated()" th:text="#{login.title}"></a>
             </li>
         </ul>
     </nav>
