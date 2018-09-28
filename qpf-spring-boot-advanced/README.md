@@ -177,7 +177,6 @@ public class EmployeeService {
 > 默认使用`ConcurrentMapCacheManager`缓存管理器创建和获取`ConcurrentMapCache`缓存组件,缓存数据保存在`ConcurrentMap`中
 
 1. 自动配置类`CacheAutoConfiguration`导入,缓存配置类,默认`SimpleCacheConfiguration`类生效
-
 ```
 ----------------------------------------------------------
 # 缓存配置类
@@ -657,37 +656,874 @@ amq.topic-->'queue'
     # 默认virtual-host=/
     spring.rabbitmq.virtual-host=/
     ```
-3. 测试`RabbitTemplate`
+
+3. 使用`AmqpAdmin`创建`Exchange`、`Queue`和`Binding`
+
+```
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class QpfSpringBootAdvancedApplicationTests {
+    @Autowired
+    private AmqpAdmin amqpAdmin;
+
+    @Test
+    public void testAmqpAdmin() {
+        amqpAdmin.declareExchange(new DirectExchange("adminDirect"));
+        amqpAdmin.declareQueue(new Queue("queue.admin", true));
+        amqpAdmin.declareBinding(new Binding("queue.admin", Binding.DestinationType.QUEUE, "adminDirect", "queue.admin", null));
+    }
+}
+```
+    
+4. 测试`RabbitTemplate`
     - `rabbitTemplate.send(exchange, routeKey, message)`: 自定义`Message`对象
         - 获取消息体(`byte[]`),
         - 配置消息头(`MessageProperties`)
     - `rabbitTemplate.convertAndSend(exchange, routeKey, object)`: `object`对象默认自动序列化为消息体
+        - `object`对象必须是可序列化对象才能序列化和反序列化
     - `rabbitTemplate.receive(queue)`: 接收消息并自动转化为`Message`对象
     - `rabbitTemplate.receiveAndConvert(queue)`: 接受消息并转化为`Object`
-4. 向容器中添加指定`MessageConverter`: `jackson2JsonMessageConverter`
+```
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class QpfSpringBootAdvancedApplicationTests {
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Test
+    public void testRabbitmq() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("code", 10001);
+        map.put("msg", "send msg");
+        rabbitTemplate.convertAndSend("amq.direct", "queue.direct", map);
+    }
+    @Test
+    public void testRabbitmqrecv() {
+        Object o = rabbitTemplate.receiveAndConvert("queue.direct");
+        System.out.println(o);
+        System.out.println(o != null ? o.getClass() : "null");
+    }
 
-5. 监听队列并调用方法
+}
+```
+
+5. 向容器中添加指定`MessageConverter`: `jackson2JsonMessageConverter`
+
+```
+@Configuration
+public class AmqpConfig {
+    @Bean
+    public MessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+}
+```
+
+6. 监听队列并调用方法
     - `@RabbitListener(queue = "xxxx.xx")`: 标注监听回调函数
+        ```
+        @Repository
+        public class DepartmentService {
+            @RabbitListener(queues = "queue.direct")
+            public void recviceDepartment(Department department) {
+                System.out.println("recv: " + department);
+            }
+        }
+        ```
     - `@EnableRabbit`: 主程序开启基于注解的`RabbitMQ`
-6. 
+        ```
+        @EnableRabbit
+        @SpringBootApplication
+        public class QpfSpringBootAdvancedApplication {
+            public static void main(String[] args) {
+                SpringApplication.run(QpfSpringBootAdvancedApplication.class, args);
+            }
+        }
+        ```
 
 ### 3.1 自动配置原理
 
 1. `RabbitAutoConfiguretion`
     - `ConnentionFactory`: 根据`RabbitProperties`配置获取`RabbitMQ`连接
     - `RabbitProperties`: 配置`RabbitMQ`
-    - `RabbitTemplate`: 发送和接收消息
     - `AmqpAdmin`: `RabbitMQ`: 系统管理功能组件,创建和删除`Exchange`, `Binding`和`Queue`
+    - `RabbitTemplate`: 发送和接收消息
 2. 
 
-# 三 检索 (Elasticsearch)
+# 三 检索 (ElasticSearch)
 
-3. 安装`Elasticsearch`
+## 1 简介
+
+`ElasticSearch`是一款开源的全文搜索引擎,可以快速存储、搜索和分析海量数据.`Spring Boot`整合`Spring Data ElasticSearch`提供了便捷的检索功能支持.
+
+`ElasticSearch`是一个分布式搜索服务,提供`Restful API`,底层基于`Lucene`.采用多`Shard`的方式保证数据安全,并且提供了自动`Resharding`的功能.
+
+`gitHub`等大型站点也采用`ElasticSearch`作为检索服务.
+
+`ElasticSearch`面向文档,存储整个对象或文档,可以对文档进行索引、检索、排序和过滤.以`JSON`作为`ElasticSearch`的序列化格式.
+
+## 2 数据操作
+
+存储数据的行为称为索引,每个`ElasticSearch`节点是一个索引,每个索引可以包含多个类型,每个类型存储多个文档,每个文档有多个属性.
 
 ```
-$ docker pull elasticsearch
+graph LR
+索引-->数据库
+类型-->数据表
+文档-->表记录
+属性-->字段
+```
+### 2.1 保存或更新数据
+
+1. 使用`PUT`请求将文档保存到指定类型
+
+`PUT`   /`索引`/`类型`/`文档标识_id`
+
+```
+{
+    "name": "xxx",
+    "age": 22
+}
+```
+
+返回保存信息
+
+2. 如果文档已存在,则会更新数据,`_version`递增
+
+### 2.2 检索数据
+
+1. 使用`GET`请求获取指定文档
+
+`GET`   /`索引`/`类型`/`文档标识_id`
+
+返回指定文档信息,文档在`_source`中
+
+2. `Head`请求查询是否存在指定文档,不返回数据
+`HEAD`   /`索引`/`类型`/`文档标识_id`
+
+3. 获取指定类型下所有文档
+
+`GET`   /`索引`/`类型`/`_search`
+
+返回所以文档信息,文档在`hits`中
+
+4. 条件检索
+
+- `GET`   /`索引`/`类型`/`_search?key:value`
+- `POST`    /`索引`/`类型`/`_search`
+    ```
+    {
+        "query": {
+            "match": {
+                "key": "value"
+            }
+        }
+    }
+    ```
+
+### 2.3 删除数据
+
+使用`DELETE`请求删除指定文档
+
+`DELETE`   /`索引`/`类型`/`文档标识_id`
+
+## 3 整合Spring Boot
+
+### 3.1 导入依赖
+
+```
+<dependencys>
+    <!-- SpringData ElasticSearch -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+    </dependency>
+    <!-- jest -->
+    <!-- https://mvnrepository.com/artifact/io.searchbox/jest -->
+    <dependency>
+        <groupId>io.searchbox</groupId>
+        <artifactId>jest</artifactId>
+        <version>2.4.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>3.0.9</version>
+    </dependency>
+</denpendencys>
+```
+
+> [`spring-boot-starter-data-elasticsearch`](https://github.com/spring-projects/spring-data-elasticsearch)包的版本需要和`ElasticSearch`版本对应
+
+`spring data elasticsearch` | `elasticsearch`
+---|---
+`3.1.x` | `6.2.2`
+`3.0.x` | `5.5.0`
+`2.1.x` | `2.4.0`
+`2.0.x` | `2.2.0`
+`1.3.x` | `1.5.2`
+
+
+### 3.2 安装ElasticSearch
+
+1. 安装`Elasticsearch`
+
+```
+# 获取elasticsearch镜像
+$ docker pull elasticsearch:2.4
 # Elasticsearch 启动默认占用2G内存,需要限制启动内存
 # web通信: 9200
 # 分布式节点通信: 9300
 $ docker run -e ES_JAVA_OPTS="-Xms=256 -Xmx=256" -d -p 9200:9200 -p 9300:9300 --name es01 {image_id}
 ```
+
+2. 访问`http://116.85.54.176:9200/`
+
+```
+{
+  "name" : "General Orwell Taylor",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "RsRTUhamS-maU3Y8xBw-3A",
+  "version" : {
+    "number" : "2.4.6",
+    "build_hash" : "5376dca9f70f3abef96a77f4bb22720ace8240fd",
+    "build_timestamp" : "2017-07-18T12:17:44Z",
+    "build_snapshot" : false,
+    "lucene_version" : "5.5.4"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+### 3.3 SpringBoot与ElasticSearch交互
+
+- `jest`: 默认不开启,需要导入`io.searchbox.jest`包
+    - 自动配置`JestClient`和`9200`(`web`通信端口)交互
+
+步骤:
+1. 配置`uris`
+    ```
+    spring.elasticsearch.jest.uris: http://{host}:9200
+    ```
+2. 实体类,`@JestId`注解标注主键
+    ```
+    public class Article {
+        @JestId
+        private Integer id;
+        private String author;
+        private String title;
+        private String content;
+        // constractor getter setter toString    
+    }
+    ```
+3. 使用`JestClient`
+    ```
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    public class QpfSpringBootAdvancedApplicationTests {
+        @Autowired
+        private JestClient jestClient;
+
+        @Test
+        public void testElasticsearchIndex() throws IOException {
+            Article article = new Article(1, "qpf", "news", "good news");
+            Index index = new Index.Builder(article).index("qpf").type("article").build();
+
+            DocumentResult result = jestClient.execute(index);
+            System.out.println("result " + result);
+        }
+        @Test
+        public void testElasticsearchSearch() throws IOException {
+            String json = "{'query': {'match': {'content': 'news'}}}";
+            Search search = new Search.Builder(json).addIndex("qpf").addType("article").build();
+    
+            SearchResult result = jestClient.execute(search);
+            System.out.println("result " + result.getJsonString());
+        }
+    
+    }
+    ```
+
+- `SpringData ElasticSearch`: 
+    - 自动配置`Client`连接: `clusterNodes`和`clusterName`
+    - 自动配置`ElasticsearchTemplate`
+    - 启用`ElasticsearchRepository`接口
+
+步骤:
+1. 配置
+    ```
+    spring.data.elasticsearch.cluster-name: elasticsearch
+    spring.data.elasticsearch.cluster-nodes: {host}:9300
+    ```
+2. 操作的实体类指定索引和类型
+    ```
+    @Document(indexName = "qpf", type = "article")
+    public class Article {
+        ....
+    }
+    ```
+3. 编写接口继承`ElasticsearchRepository`,并且指定操作对象类型以及主键类型
+    ```
+    public interface ArticleRepository extends ElasticsearchRepository<Article, Integer> {}
+    ```
+4. 使用接口
+    ```
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    public class QpfSpringBootAdvancedApplicationTests {
+        @Autowired
+        private ArticleRepository articleRepository;
+    
+        @Test
+        public void testElasticsearchRepository() {
+            articleRepository.index(new Article(2, "qpf", "weather", "sunny"));
+    //        QueryBuilder queryBuilder = new QueryBuilder();
+    //        articleRepository.search();
+        }
+    }
+    ```
+5. 使用`ElasticsearchTemplate`
+
+# 四 Spring Boot与任务
+
+## 1 异步任务
+
+1. 主程序标注`@EnableAsync`注解,开启基于注解的异步任务
+2. 调用的方法添加`@Async`注解,则该方法会异步执行
+
+## 2 定时任务
+
+1. 主程序标注`@EnableScheduling`注解,开启基于注解的定时任务
+2. 调用的方法添加`@Scheduled`,指定`cron`表达式,则会定时执行该方法
+    - `* * * * * *`: `cron`表达式,6个日期单位以空格隔开,分别表示`秒`,`分`,`时`,`天`,`月`,`周`
+    - 使用的字符:
+        - `,`: 枚举,同一个时间单位,枚举多个值
+        - `-`: 区间,一个连续区间,如:`1-4`
+        - `*`: 任意,即该时间单位的任意值
+        - `/`: 步长,`m/n`从`m`开始每隔`n`个单位执行一次,
+        - `?`: 天或星期,发生冲突使用`?`代替
+        - `L`: 最后,这个个月的最后一天或者最后一个星期
+        - `W`: 工作日,`LW`表示这个月最后一个工作日
+        - `C`: `Calendar`计算过的值
+        - `#`: 星期,如`4#2`表示第二个星期四
+    > `0`或者`7`都可以表示星期天,`1-6`表示星期一到星期六
+    
+
+
+## 3 邮件任务
+
+1. 导入邮件启动器`spring-boot-starter-mail`
+2. `MailSevderAutoConfiguration`自动配置邮件发送
+    - `MailProperties`类配置邮件属性
+    - `JavaMailSenderImpl`发送邮件
+3. 配置邮箱服务器
+    ```
+    spring.mail.username=xxx@qq.com
+    # 邮箱授权码
+    spring.mail.password=xxxxxxxxxx
+    spring.mail.host=smtp.qq.com
+    # 启动ssl安全
+    spring.mail.properties.smtp.ssl.enable: true
+    ```
+4. 使用`JavaMailSenderImpl`发送邮件
+    ```
+    @RunWith(SpringRunner.class)
+    @SpringBootTest
+    public class QpfSpringBootAdvancedApplicationTests {
+        @Autowired
+        private JavaMailSenderImpl mailSender;
+    
+        @Test
+        public void sendSimpleMail() {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo("qpf0510@163.com");
+            mail.setFrom("qpf0510@qq.com");
+            mail.setSubject("通知·开会");
+            mail.setText("今晚 7:30 开会");
+            
+            mailSender.send(mail);
+            System.out.println("发送完成....");
+        }
+    
+        @Test
+        public void sendMimeMaile() throws MessagingException {
+    
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            // 启动附件模式
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+    
+            helper.setTo("qpf0510@163.com");
+            helper.setSubject("通知·开会");
+            helper.setFrom("qpf0510@qq.com");
+            // 启动HTML解析
+            helper.setText("<h1>今晚<b style='color:red;'>7:30</b>开会</h1>", true);
+    
+            File[] files = new File("/home/shadaileng/下载/images/tumblr/tumblr_001").listFiles();
+            for (File file : files) {
+                if (file.isFile()) {
+                    // 添加附件
+                    helper.addAttachment(file.getName(), file);
+                    System.out.println("attache file: " + file.getName());
+                }
+            }
+            mailSender.send(mimeMessage);
+        }
+    }
+    ```
+
+# 五 Spring Boot与安全
+
+## 1 Spring Security
+
+`Spring Security`是针对`Spring`项目的安全框架,可以提供强大的`Web`安全控制,也是`Spring Boot`底层默认的安全模块.
+
+## 1.1 认证与授权
+
+- 认证(`Authentication`): 建立一个声明主体的过程
+- 授权(`Authorization`): 确定一个主体是否可以在应用程序中执行一个动作的过程
+
+## 1.2 步骤
+
+### 1.2.1 导入`spring-boot-starter-security`
+
+```
+<dependencys>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+</dependencys>
+```
+
+### 1.2.2 编写`WebSecurity`配置类
+- 继承`WebSecurityConfigurerAdapter`: 自定义`Security`策略
+- 标注`@EnableWebSecurity`: 启动`WebSecurity`模式
+- `AuthticationManagerBuilder`: 自定义认证策略
+    ```
+    @EnableWebSecurity
+    public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    
+        @Override
+        protected void configure(AuthenticationMangerBuilder auth) throws Exception {
+            // 定制认证规则
+            auth.inMemoryAuthentication()
+                .withUser("qpf").password("123456").roles("VIP1", "VIP2")
+                .and()
+                .withUser("shadaileng").password("123456").roles("VIP1");
+            
+        }
+    
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // 定制请求授权规则
+            http.authorizeRequest()
+                // 所有人都可以访问首页
+                .antMatchers("/").permitAll()
+                // VIP1角色的用户才能访问 /level1/** 请求
+                .antMatchers("/level1/**").hasRole("VIP1")
+                // VIP2角色的用户才能访问 /level2/** 请求
+                .antMatchers("/level2/**").hasRole("VIP2")
+                // VIP3角色的用户才能访问 /level3/** 请求
+                .antMatchers("/level3/**").hasRole("VIP3");
+            
+            // 开启自动配置的登陆功能,没有登陆则会跳转到登陆页面
+            // 1. 发送`/login`请求到登陆页面
+            // 2. 登陆错误,则会重定向到`/login?error`页面
+            http.formLogin();
+                
+            // 开启自动配置注销功能
+            // 1.默认的退出URL是`/logout`,logoutUrl("/logout")方法可以指定退出URL
+            // 2. POST表单请求提交`/logout`注销用户,并清空session
+            //      <form th:action="/logout" method="POST">
+            //          <input type="submit" value="注销">
+            //      </form>
+            // 3. 默认注销成功返回 `/login?logout`页面
+            // 4. logoutSuccessUrl("/")设置注销成功返回页面
+            http.logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/");
+            
+            // 开启记住我功能
+            // 登陆成功,发送cookie到浏览器
+            // 之后登陆时带上cookie,通过检查则会免登陆
+            // 注销成功,删除cookie
+            http.rememberMe();
+        }
+    }
+    ```
+### 1.2.3 `Thymeleaf`整合安全验证
+- 导入`thymeleaf-extras-springsecurity4`
+    ```
+    <properties>
+        <!-- 适配thymeleaf3.x的thymeleaf-extras-springsecurity4 -->
+        <thymeleaf-extras-springsecurity4.version>3.0.2.RELEASE</thymeleaf-extras-springsecurity4.version>
+    </properties>
+    <dependencys>
+        <!-- https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-springsecurity4 -->
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity4</artifactId>
+        </dependency>
+    </dependencys>
+    ```
+- 页面映入`Security`和`thymeleaf`的命名空间,显示认证信息
+    ```
+    <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+        <head></head>
+        <body>
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login">请登陆</a>
+            </div>
+            <div sec:authorize="isAuthenticated()">
+                <h1><span sec:authentication="name"></span>, 已登陆.角色权限[<span sec:authentication="principal.authorities"></span>]</>
+                <form th:action="@{/logout" method="POST">
+                    <input type="submit" value="注销">
+                </form>
+            </div>
+            
+            <div sec:authorize="hasRole('VIP1')">
+                <!--显示VIP1内容-->
+            </div>
+            <div sec:authorize="hasRole('VIP2')">
+                <!--显示VIP2内容-->
+            </div>
+            <div sec:authorize="hasRole('VIP3')">
+                <!--显示VIP3内容-->
+            </div>
+        </body>
+    </html>
+    ```
+### 1.2.4 定制登陆页
+
+1. `http.formLogin()`: 开启登陆请求
+    - 默认:发送`Get`请求到登陆页面(`/login`)
+    - 默认:登陆页面发送`POST`请求到`/login`处理登陆信息
+    - 默认:登陆错误,则会重定向到页面(`/login?error`)
+    - 定制:`loginPage("/userlogin")`指定登陆页面的URL,发送`GET`请求跳到定制登陆页面
+    - 定制:`loginProcessingUrl("/login")`指定处理登陆请求URL,默认和`loginPage()`指定URL一致
+    - 定制:定制登陆页面发送`POST`请求到处理请求URL,处理登陆数据
+    - 定制:`usernameParameter()`和`passwordParameter()`方法设置用户名和密码参数名.
+2. `http.rememberMe()`: 开启记住我功能
+    - 登陆成功,发送`cookie`到浏览器
+    - 之后登陆时带上`cookie`,通过检查则会免登陆
+    - 注销成功,删除`cookie`
+    - 默认: 登陆页面提交参数`rememberme`
+    - 定制: `rememberMeParameter("remember")`设置`rememberMe`参数
+     ```
+    @EnableWebSecurity
+    public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(AuthenticationMangerBuilder auth) throws Exception {
+            // 定制认证规则
+            ....
+            
+        }
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // 定制请求授权规则
+            ....
+            // 开启自动配置的登陆功能,没有登陆则会跳转到登陆页面
+            // 1. 默认:发送`Get`请求到登陆页面(`/login`)
+            // 2. 默认:登陆页面发送`POST`请求到`/login`处理登陆信息
+            // 3. 默认:登陆错误,则会重定向到页面(`/login?error`)
+            // 4. 定制:loginPage("/userlogin")指定登陆页面的URL,发送`GET`请求跳到定制登陆页面
+            // 5. 定制:loginProcessingUrl("/login")指定处理登陆请求URL,默认和loginPage()指定URL一致
+            // 6. 定制:定制登陆页面发送`POST`请求到处理请求URL,处理登陆数据
+            // 7. 定制:`usernameParameter()`和`passwordParameter()`方法设置用户名和密码参数名.
+            http.formLogin().loginPage("/userlogin")
+                            .usernameParameter("user")
+                            .passwordParameter("pwd");
+                
+            http.logout().logoutSuccessUrl("/");
+            
+            // 开启记住我功能
+            // 登陆成功,发送cookie到浏览器
+            // 之后登陆时带上cookie,通过检查则会免登陆
+            // 注销成功,删除cookie
+            // 默认: 登陆页面提交参数`rememberme`
+            // 定制: rememberMeParameter("remember")设置`rememberMe`参数
+            http.rememberMe().rememberMeParameter("remember");
+        }
+    }
+    ```
+3. 定制登陆页面
+    ```
+    <form th:action="@{/userlogin}" method="post">
+        <input type="text" name="user" palceholder="用户名"><br/>
+        <input type="password" name="pwd" placeholder="密码"><br/>
+        <input type="checkbox" name="remember"> 记住我<br/>
+        <input type="submit" value="登陆"><br/>
+    </form>
+    ```
+    
+# 六 分布式
+
+## 1 分布式应用
+
+分布式系统中,国内常用`Zookeeper`和`Dubbo`的组合,`Spring Boot`推荐使用`Spring`、`Spring Boot`和`Spring Cloud`.各个模块登记在注册中心,分布式框架访问注册中心,获取模块地址,然后调度到不同的模块
+
+## 2 Zookeeper和Dubbo
+
+- `Zookeeper`: 是一个开源的分布式应用协调服务,为分布式应用提供一致性服务的软件
+    - 配置维护
+    - 域名服务
+    - 分布式同步
+    - 组服务
+- `Dubbo`: 是一个开源的分布式框架,使用分层的方式来架构,是各层之间解耦合.
+    - 提供方(`Provider`): 提供服务
+    - 消费方(`Comsumer`): 消费服务
+
+-  模型
+    - 容器启动时,加载`Provider`,并登记其服务到服务中心
+    - `Consumer`订阅服务中心相关服务,如果订阅的服务发生变化,服务中心提醒`Consumer`
+    - `Consumer`根据订阅的服务,调用`Provider`
+    - `Monitor`监听`Consumer`调用`Provider`的信息
+
+### 2.1 安装
+
+1. 安装`Zookeeper`
+    ```
+    # 下载Zookeeper
+    $ docker pull zookeeper
+    # 运行Zookeeper
+    # 2181: 客户端端口
+    # 2888: follower(集群)端口
+    # 3888: election(选举)端口
+    $ docker run --name zk01 --restart alwaays -p 2181:2181 -p 2888:2888 -p 3888:3888 -d zookeeper 
+    ```
+### 2.2 整合`Zookeeper`和`Dubbo`
+1. 将`Provider`发布到注册中心
+    - 导入[`dubbo-spring-boot-starter`](https://github.com/apache/incubator-dubbo-spring-boot-project)和[`kzclient`](http://mvnrepository.com/artifact/com.github.sgroschupf/zkclient)相关依赖
+        ```
+        <dependencys>
+            <dependency>
+                <groupId>com.alibaba.boot</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>0.2.0</version>
+            </dependency>
+            <!-- zkclient客户端 -->
+            <!-- https://mvnrepository.com/artifact/com.github.sgroschupf/zkclient -->
+            <dependency>
+                <groupId>com.github.sgroschupf</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>0.1</version>
+            </dependency>
+        </dependencys>
+        ```
+    - 配置`dubbo`扫描包和注册中心地址
+        ```
+        # provider-project-name
+        dubbo.application.name={provider_project_name}
+        # 注册中心地址
+        dubbo.registry.address=zookeeper://{host}:2181
+        # 扫描发布服务包
+        dubbo.scan.base-packages={package.to.service}
+        ```
+    - 使用`@Service`发布服务
+        - 编写服务接口
+            ```
+            public interface TicketService{public String getTicket();}
+            ```
+        - 实现服务接口,并标注`@com.alibaba.dubbo.config.annotation.Service`注解发布服务
+            ```
+            @Service
+            @Component
+            public class TicketServiceImpl impliments TicketService {
+                @Override
+                public String getTicket() {
+                    return "Ticket-01";
+                }
+            }
+        ```
+2. `Consumer`订阅服务
+    - 导入[`dubbo-spring-boot-starter`](https://github.com/apache/incubator-dubbo-spring-boot-project)和[`kzclient`](http://mvnrepository.com/artifact/com.github.sgroschupf/zkclient)相关依赖
+        ```
+        <dependencys>
+            <dependency>
+                <groupId>com.alibaba.boot</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>0.2.0</version>
+            </dependency>
+            <!-- zkclient客户端 -->
+            <!-- https://mvnrepository.com/artifact/com.github.sgroschupf/zkclient -->
+            <dependency>
+                <groupId>com.github.sgroschupf</groupId>
+                <artifactId>zkclient</artifactId>
+                <version>0.1</version>
+            </dependency>
+        </dependencys>
+        ```
+    - 配置`dubbo`注册中心地址以及`Consumer`项目名
+        ```
+        # provider-project-name
+        dubbo.application.name={provider_project_name}
+        # 注册中心地址
+        dubbo.registry.address=zookeeper://{host}:2181
+        ```
+    - 引用服务
+        - 复制`Provider`服务接口到`Consumer`
+        - `Consumer`服务类引用`Provider`发布的服务
+            ```
+            @Repository
+            public class UserService {
+                @Reference
+                TicketService ticketService;
+
+                public void buyTicket() {
+                    String ticket = ticketService.getTicket();
+                    System.out.println("买到了: " + ticket);
+                }
+            }
+            ```
+
+## 3 `Spring Boot`和`Spring Cloud`
+
+- `Spring Cloud`: 是一个分布式的整体解决方案,为开发者提供了在分布式系统中快速构建的工具,可以快速启动或构建应用,同时快速和云服务平台资源进行对接.提供的分布式系统功能:
+    - 配置管理
+    - 服务发现
+    - 融断
+    - 路由
+    - 微代理
+    - 一次性`token`
+    - 全局锁
+    - `leader`选举
+    - 分布式`Session`
+    - 集群状态
+- `Spring Cloud`分布式开发常用五大组件:
+    - 服务发现: `Netflix`,`Eureka`
+    - 客服负载均衡: `Netflix`, `Ribbon`
+    - 断路器: `Netflix`, `Hystrix`
+    - 服务网关: `Netflix`, `Zuul`
+    - 分布式配置: `Spring Cloud Config`
+
+### 1 整合Spring Cloud
+
+1. `Eureka Serve`: 注册中心
+    - 构建工程时勾选`Cloud Discovery`-->`Eureka Server`
+    - 配置`Eureka`服务器
+        ```
+        server.port=8761
+        # Eureka服务主机名
+        eureka.instance.hostname={eureka_server_name}
+        # 不将Eureka本身注册在注册中心里
+        eureka.client.register-with-eureka=false
+        # 不从Eureka获取服务
+        eureka.client.fetch-registry=false
+        # 设置Eureka注册中心地址,默认[defaultZone=http://localhost:8761/eureka.client]
+        eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+        ```
+    - 主程序添加`@EnableEurekaServer`注解,启用注册中心
+    - 访问`http://localhost:8761`,即可进入注册中心
+2. `Peivider`: 服务提供者,在注册中心中注册服务
+    - 构建工程时勾选`Cloud Discovery`-->`Eueka Discovery`
+    - `Controller`中调用`Service`,暴露服务接口
+        - `Service`
+            ```
+            @Service
+            public class TicketService {
+                public String getTicket() {
+                    return "Ticket-01";
+                }
+            }
+            ```
+        - `Controller`
+            ```
+            @RestController
+            public class TicketController {
+                
+                @Autowired
+                TicketService ticketService;
+                @GetMapping("/ticket")
+                public String getTicket() {
+                    return ticketService.getTicket();
+                }
+            }
+            ```
+    - 配置`Provider`注册服务
+        ```
+        server.port=8001
+        # Provider项目名
+        spring.application.name={provider_project_name}
+        # 使用服务IP地址注册服务
+        eureka.instance.prefer-ip-address=true
+        # 设置Eureka注册中心地址
+        eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+        ```
+3. `Consumer`: 服务消费者
+    - 构建工程时勾选`Cloud Discovery`-->`Eueka Discovery`
+    - 配置`Consumer`注册服务
+        ```
+        server.port=8200
+        # Consumer
+        spring.application.name={consumer_project_name}
+        # 使用服务IP地址注册服务
+        eureka.instance.prefer-ip-address=true
+        # 设置Eureka注册中心地址
+        eureka.client.service-url.defaultZone=http://localhost:8761/eureka/
+        ```
+    - 主程序添加`@EnableDiscoveryClient`注解,开启发现服务功能
+    - 容器中添加`RestTemplate`组件,添加`@LoadBalanced`注解启用负载均衡机制
+        ```
+        @LoadBalanced
+        @Bean
+        public RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+        ```
+    - `Controller`中消费服务
+        ```
+        @RestController
+        public class UserController {
+            @Autowired
+            RestTemplate restTemplate;
+            @GetMapping("/buy")
+            public String buyTicket() {
+                String ticket = restTemplate.getForObject("Http://{provider_project_name}/ticket", String.class);
+                return "买到了: " + ticket;
+            }
+        }
+        ```
+# 七 热部署
+
+导入依赖
+
+```
+<dependencys>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <option>true</option>
+    </dependency>
+</dependencys>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <!-- 非必需 -->
+            <configuration>
+                <fork>true</fork>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+# 八 监控管理
+
+
+1.导入依赖,或者构建工程是勾选`Ops`-->`Actuator`
+    ```
+    <dependencys>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <option>true</option>
+        </dependency>
+    </dependencys>
+    ```
+2. 通过`http`方式访问监控端点
+    - 关闭监控权限管理
+        ```
+        management.security.enabled=false
+        ```
+3. 
