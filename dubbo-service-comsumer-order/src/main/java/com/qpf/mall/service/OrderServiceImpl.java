@@ -1,8 +1,8 @@
-package com.qpf.mall.service.impl;
+package com.qpf.mall.service;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.qpf.mall.service.OrderService;
-import com.qpf.mall.service.UserService;
+import mall.service.OrderService;
+import mall.service.UserService;
 import org.springframework.stereotype.Repository;
 
 @Repository

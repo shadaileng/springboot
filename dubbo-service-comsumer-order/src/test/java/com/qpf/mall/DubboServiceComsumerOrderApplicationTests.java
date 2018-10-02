@@ -1,6 +1,6 @@
 package com.qpf.mall;
 
-import com.qpf.mall.service.OrderService;
+import mall.service.OrderService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

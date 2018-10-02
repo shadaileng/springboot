@@ -1,7 +1,7 @@
-package com.qpf.mall.service.impl;
+package com.qpf.mall.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.qpf.mall.service.UserService;
+import mall.service.UserService;
 import org.springframework.stereotype.Component;
 
 @Service
